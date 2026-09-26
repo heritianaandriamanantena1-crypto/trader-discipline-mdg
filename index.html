@@ -1,0 +1,92 @@
+!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trader Discipline</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#080b10;color:#f5f7fa}button,input,select{font:inherit}
+a{color:inherit}.hidden{display:none!important}.top{height:66px;border-bottom:1px solid #202a34;background:#0b1016;display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:10}.logo{font-weight:800;letter-spacing:1px}.logo span{color:#37d67a}.wrap{max-width:1180px;margin:auto;padding:28px 20px}.btn{border:0;border-radius:8px;padding:11px 16px;background:#37d67a;color:#06100a;font-weight:700;cursor:pointer}.btn.dark{background:#151d25;color:#dce4ea;border:1px solid #2a3743}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card,.panel{background:#0e151c;border:1px solid #202b35;border-radius:12px;padding:20px}.price{color:#37d67a;font-weight:800;font-size:20px}.muted{color:#8b98a5}.tag{font-size:11px;color:#69df96;border:1px solid #31503e;border-radius:20px;padding:5px 8px;display:inline-block}.row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #202b35;padding:14px 0;gap:15px}.admin{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 66px)}aside{background:#0b1016;border-right:1px solid #202a34;padding:16px}aside button{width:100%;background:none;border:0;color:#aeb8c3;text-align:left;padding:12px;border-radius:7px;cursor:pointer}aside button:hover,aside button.active{background:#151d25;color:white}.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat strong{display:block;font-size:26px;margin-top:6px}.field{margin:12px 0}.field label{display:block;color:#9da8b3;font-size:13px;margin-bottom:6px}.field input,.field select{width:100%;padding:11px;background:#091016;border:1px solid #293541;color:white;border-radius:7px}.login{min-height:100vh;display:grid;place-items:center}.loginbox{width:min(430px,92%);padding:30px;background:#0e151c;border:1px solid #26313c;border-radius:15px;text-align:center}.notice{padding:12px;border-radius:8px;background:#111a16;border:1px solid #294936;color:#8fe3ad;margin:12px 0}.danger{color:#ff8585}.progress{height:8px;background:#202a34;border-radius:9px;overflow:hidden}.bar{height:100%;background:#37d67a;width:0}.small{font-size:12px}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.admin{grid-template-columns:1fr}.statgrid{grid-template-columns:1fr 1fr}aside{display:flex;overflow:auto;gap:6px}aside button{min-width:120px}.top .muted{display:none}}
+</style>
+</head>
+<body>
+<div id="login" class="login">
+ <div class="loginbox">
+  <div class="logo" style="font-size:24px">TRADER <span>DISCIPLINE</span></div>
+  <h2>Connexion</h2>
+  <p class="muted">Utilise ton compte Google. Aucun mot de passe Gmail n'est demandé à Trader Discipline.</p>
+  <button class="btn" onclick="googleLogin()">Continuer avec Google</button>
+  <p id="loginMsg" class="small muted"></p>
+ </div>
+</div>
+
+<div id="site" class="hidden">
+<header class="top"><div class="logo">TRADER <span>DISCIPLINE</span></div><div><span id="userEmail" class="muted"></span> <button class="btn dark" onclick="logout()">Déconnexion</button></div></header>
+<div class="wrap">
+ <h1>Formations</h1><p class="muted">Choisis ta formation et consulte les conditions de paiement.</p>
+ <div id="publicCourses" class="grid"></div>
+</div>
+</div>
+
+<div id="admin" class="hidden">
+<header class="top"><div class="logo">TRADER <span>DISCIPLINE</span> — ADMIN</div><div><span id="adminEmail" class="muted"></span> <button class="btn dark" onclick="logout()">Déconnexion</button></div></header>
+<div class="admin">
+<aside>
+<button class="active" onclick="tab('dash',this)">📊 Dashboard</button>
+<button onclick="tab('courses',this)">🎓 Formations</button>
+<button onclick="tab('payments',this)">💳 Paiements</button>
+<button onclick="tab('files',this)">📁 Fichiers</button>
+<button onclick="tab('settings',this)">⚙️ Paramètres</button>
+</aside>
+<main class="wrap">
+<section id="dash"><h1>Dashboard</h1><p class="muted">Données réelles de ta base Supabase.</p><div class="statgrid"><div class="card stat">Formations<strong id="nCourses">—</strong></div><div class="card stat">Modes de paiement<strong id="nPays">—</strong></div><div class="card stat">Fichiers<strong id="nFiles">—</strong></div><div class="card stat">Admin<strong id="adminStatus">—</strong></div></div></section>
+
+<section id="courses" class="hidden"><h1>Formations</h1><p class="muted">Les prix sont modifiables ici.</p>
+<div class="panel"><div class="field"><label>Nom</label><input id="cName"></div><div class="field"><label>Niveau</label><select id="cLevel"><option>BEGINNER</option><option>ADVANCED</option><option>PRO</option></select></div><div class="field"><label>Prix (Ar)</label><input id="cPrice" type="number" min="0"></div><div class="field"><label>Description</label><input id="cDesc"></div><button class="btn" onclick="addCourse()">Ajouter</button></div>
+<div id="courseList" style="margin-top:16px"></div></section>
+
+<section id="payments" class="hidden"><h1>Modes de paiement</h1><p class="muted">Ajoute ou désactive les méthodes acceptées par ton site.</p>
+<div class="panel"><div class="field"><label>Nom du mode</label><input id="pName" placeholder="MVola, Orange Money, Airtel Money, USDT..."></div><div class="field"><label>Instructions / numéro / wallet</label><input id="pDetails"></div><button class="btn" onclick="addPayment()">Ajouter</button></div><div id="paymentList" style="margin-top:16px"></div></section>
+
+<section id="files" class="hidden"><h1>Fichiers de cours</h1><p class="muted">Upload vers Supabase Storage. Pour les gros fichiers, l'upload utilise le mode resumable.</p>
+<div class="panel"><div class="field"><label>Formation</label><select id="fileCourse"></select></div><input id="fileInput" type="file"><div style="margin:12px 0" class="progress"><div id="bar" class="bar"></div></div><button class="btn" onclick="uploadFile()">Téléverser</button><p id="uploadMsg" class="small muted"></p></div><div id="fileList" style="margin-top:16px"></div></section>
+
+<section id="settings" class="hidden"><h1>Paramètres</h1><div class="panel"><div class="notice">Ton Gmail admin est autorisé via la table <b>admins</b>. Le mot de passe Gmail reste chez Google.</div><p class="muted">Pour changer l'admin, ajoute son UUID dans la table admins depuis Supabase SQL Editor.</p></div></section>
+</main></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
+<script>
+const CONFIG={SUPABASE_URL:"https://yxcjxlzdgwudxdltdmwo.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_KLrwaqJJA19FSkcig6ieCw_lFvpaRt6"};
+let sb=null, currentUser=null, isAdmin=false;
+function configured(){return !CONFIG.SUPABASE_URL.includes("__")&&!CONFIG.SUPABASE_ANON_KEY.includes("__")}
+async function start(){
+ if(!configured()){document.getElementById('loginMsg').textContent="Configuration requise : renseigne SUPABASE_URL et SUPABASE_ANON_KEY dans index.html.";return}
+ sb=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
+ const {data}=await sb.auth.getSession(); if(data.session) await session(data.session);
+ sb.auth.onAuthStateChange((_e,s)=>{if(s) session(s);});
+}
+async function session(s){currentUser=s.user;document.getElementById('userEmail').textContent=s.user.email||'';document.getElementById('adminEmail').textContent=s.user.email||'';
+ const r=await sb.from('admins').select('user_id').eq('user_id',s.user.id).maybeSingle();isAdmin=!!r.data;
+ document.getElementById('login').classList.add('hidden'); if(isAdmin){document.getElementById('admin').classList.remove('hidden');document.getElementById('site').classList.add('hidden');loadAdmin()}else{document.getElementById('site').classList.remove('hidden');document.getElementById('admin').classList.add('hidden');loadPublic()}}
+async function googleLogin(){if(!sb){await start();if(!sb)return}await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}})}
+async function logout(){if(sb) await sb.auth.signOut();location.reload()}
+async function loadPublic(){const {data}=await sb.from('courses').select('*').eq('active',true).order('created_at');document.getElementById('publicCourses').innerHTML=(data||[]).map(c=>`<div class="card"><span class="tag">${c.level}</span><h2>${esc(c.name)}</h2><p class="muted">${esc(c.description||'')}</p><div class="price">${Number(c.price_ariary).toLocaleString('fr-FR')} Ar</div></div>`).join('')}
+async function loadAdmin(){const [c,p,f]=await Promise.all([sb.from('courses').select('*').order('created_at'),sb.from('payment_methods').select('*').order('created_at'),sb.storage.from('course-files').list('',{limit:100})]);document.getElementById('nCourses').textContent=c.data?.length??0;document.getElementById('nPays').textContent=p.data?.length??0;document.getElementById('nFiles').textContent=f.data?.length??0;document.getElementById('adminStatus').textContent='Actif';renderCourses(c.data||[]);renderPayments(p.data||[]);fillCourseSelect(c.data||[]);renderFiles(f.data||[])}
+async function addCourse(){const name=cName.value.trim(),level=cLevel.value,price=Number(cPrice.value),description=cDesc.value.trim();if(!name)return alert('Nom requis');const r=await sb.from('courses').insert({name,level,price_ariary:price,description,active:true}).select();if(r.error)alert(r.error.message);else loadAdmin()}
+function renderCourses(a){courseList.innerHTML=a.map(c=>`<div class="panel row"><div><b>${esc(c.name)}</b><div class="small muted">${c.level} • ${Number(c.price_ariary).toLocaleString('fr-FR')} Ar</div></div><button class="btn dark" onclick="toggleCourse('${c.id}',${!c.active})">${c.active?'Désactiver':'Activer'}</button></div>`).join('')}
+async function toggleCourse(id,v){await sb.from('courses').update({active:v}).eq('id',id);loadAdmin()}
+async function addPayment(){const name=pName.value.trim(),details=pDetails.value.trim();if(!name)return alert('Nom requis');const r=await sb.from('payment_methods').insert({name,details,active:true});if(r.error)alert(r.error.message);else loadAdmin()}
+function renderPayments(a){paymentList.innerHTML=a.map(p=>`<div class="panel row"><div><b>${esc(p.name)}</b><div class="small muted">${esc(p.details||'')}</div></div><button class="btn dark" onclick="togglePay('${p.id}',${!p.active})">${p.active?'Désactiver':'Activer'}</button></div>`).join('')}
+async function togglePay(id,v){await sb.from('payment_methods').update({active:v}).eq('id',id);loadAdmin()}
+function fillCourseSelect(a){fileCourse.innerHTML=a.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}
+async function uploadFile(){const f=fileInput.files[0],cid=fileCourse.value;if(!f||!cid)return alert('Choisis une formation et un fichier.');uploadMsg.textContent='Upload en cours...';bar.style.width='0%';
+const path=`${cid}/${Date.now()}-${f.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+try{const endpoint=CONFIG.SUPABASE_URL.replace(/\/$/,'')+'/storage/v1/upload/resumable';await new Promise((resolve,reject)=>{const upload=new tus.Upload(f,{endpoint,chunkSize:6*1024*1024,retryDelays:[0,1000,3000,5000],headers:{authorization:'Bearer '+CONFIG.SUPABASE_ANON_KEY,'x-upsert':'false'},metadata:{bucketName:'course-files',objectName:path,contentType:f.type||'application/octet-stream'},onError:reject,onProgress:(u,t)=>bar.style.width=Math.floor(u/t*100)+'%',onSuccess:resolve});upload.findPreviousUploads().then(prev=>{if(prev.length)upload.resumeFromPreviousUpload(prev[0]);upload.start()})});
+const r=await sb.from('course_files').insert({course_id:cid,file_name:f.name,storage_path:path,size_bytes:f.size,content_type:f.type});if(r.error)throw r.error;uploadMsg.textContent='Fichier envoyé avec succès.';loadAdmin()}catch(e){uploadMsg.textContent='Erreur : '+e.message}}
+function renderFiles(a){fileList.innerHTML=a.map(f=>`<div class="panel row"><span>${esc(f.name)}</span><span class="small muted">Stockage Supabase</span></div>`).join('')}
+function tab(id,el){document.querySelectorAll('main section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+start();
+</script>
+</body></html>
